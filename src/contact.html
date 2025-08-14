@@ -43,7 +43,11 @@
                     <legend>Detalhes do Passeio</legend>
 
                     <label for="data_passeio">Data do passeio:</label><br />
-                    <input type="date" id="data_passeio" name="data_passeio" required /><br /><br />
+                    <input type="date" id="data_passeio" name="data_passeio" required />
+                    <!-- Mensagem de erro que será mostrada caso a data seja inválida -->
+                    <span id="erro_data" style="color:red; display:none;">
+                        A data selecionada não pode ser anterior a hoje.
+                    </span><br /><br />
 
                     <label for="num_pessoas">Número de pessoas:</label><br />
                     <input type="number" id="num_pessoas" name="num_pessoas" min="1" max="10" required /><br /><br />
@@ -66,5 +70,52 @@
     <footer>
         <p><small>© 2025 Guia de Pontos Turísticos do Vale Jaguaribe.</small></p>
     </footer>
+
+    <script>
+    /*
+        BLOQUEAR DATAS PASSADAS NO CAMPO "DATA DO PASSEIO"
+        -------------------------------------------------
+        Objetivo: Não permitir que o usuário escolha uma data anterior a hoje
+        e mostrar uma mensagem de erro se ele tentar.
+    */
+
+    // Pega o campo de data do passeio pelo ID
+    const dataPasseio = document.getElementById('data_passeio');
+
+    // Pega a <span> de erro para mostrar/esconder a mensagem
+    const erroData = document.getElementById('erro_data');
+
+    // Cria um objeto Date com a data atual (do computador do usuário)
+    const hoje = new Date();
+
+    /*
+        toISOString() -> retorna a data no formato: "2025-08-14T12:34:56.789Z"
+        split('T')[0] -> pega só a parte antes do "T" (YYYY-MM-DD)
+        Isso é necessário porque o input type="date" aceita somente esse formato.
+    */
+    dataPasseio.min = hoje.toISOString().split('T')[0];
+
+    /*
+        Quando o usuário mudar o valor do campo de data:
+        - Criamos um objeto Date com a data escolhida
+        - Comparamos com a data de hoje (sem hora)
+    */
+    dataPasseio.addEventListener('input', function() {
+        const dataSelecionada = new Date(this.value);
+
+        // "Normaliza" a data de hoje para 00:00 (removendo hora/minuto/segundo)
+        const hojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+        if (dataSelecionada < hojeSemHora) {
+            // Mostra a mensagem de erro
+            erroData.style.display = 'inline';
+            // Limpa o campo para o usuário ter que escolher outra data
+            this.value = '';
+        } else {
+            // Esconde a mensagem caso a data seja válida
+            erroData.style.display = 'none';
+        }
+    });
+    </script>
 </body>
 </html>
